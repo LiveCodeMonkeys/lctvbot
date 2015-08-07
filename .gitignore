@@ -1,0 +1,5 @@
+node_modules/
+.c9/
+npm-debug.log
+config.json
+*sublime*
