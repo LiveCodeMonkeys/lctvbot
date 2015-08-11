@@ -65,16 +65,16 @@ bot.on( 'msg', function( nickname, channel, message, stanza ) {
 } );
 
 //Commands
-bot.on( 'command#!debug', function( from, text, stanza ) {
+bot.on( 'command#!debug', function( from, text, nickname, stanza ) {
     var channel = bot.channels [ from ];
     console.log( channel );
     var output = 'Total Users: ' + ( channel.users.length + channel.mods.length ) + '\n';
     output += 'Users: ' + channel.users.length + '\n';
     output += 'Mods: ' + channel.mods.length;
-    bot.message( from, output, stanza.type );
+    bot.message( from, output );
 } );
 
-bot.on( 'command#!help', function( from, text, stanza ) {
+bot.on( 'command#!help', function( from, text, nickname, stanza ) {
     var string = [];
     for( var trigger in channels[from].commands ) {
         string.push( trigger );
@@ -84,23 +84,25 @@ bot.on( 'command#!help', function( from, text, stanza ) {
     bot.message( from, output, stanza.type );
 } );
 
-bot.on( 'command#!info', function( from, text, stanza ) {
+bot.on( 'command#!info', function( from, text, nickname, stanza ) {
     var onlineTimer = unixTimestamp() - online;
     console.log( { channelCount: channelCount, onlineTimer: onlineTimer } );
-    bot.message( from, "LCTV Bot Info:", stanza.type );
-    bot.message( from, "Channels: " + channelCount, stanza.type );
-    bot.message( from, "Online: " + onlineTimer + "s", stanza.type );
+    var output = "LCTV Bot Info:\nChannels: " + channelCount + "\nOnline: " + onlineTimer + "s";
+    // bot.message( from, "LCTV Bot Info:" );
+    // bot.message( from, "Channels: " + channelCount, stanza.type );
+    // bot.message( from, "Online: " + onlineTimer + "s", );
+    bot.message( from, output );
 } );
 
-bot.on( 'command#!reload' , function( from, text, stanza ) {
-    bot.message( from, '/codeReloading chat commands...', stanza.type );
+bot.on( 'command#!reload' , function( from, text, nickname, stanza ) {
+    bot.message( from, '/codeReloading chat commands...' );
     loadCommands( from );
 } );
 
-bot.on( 'command#!setup', function( from, text, stanza ) {
-    var channel = bot.channels[ from ];
-    console.log( { from: from, text: text } );
-} );
+// bot.on( 'command#!setup', function( from, text, nickname, stanza ) {
+//     var channel = bot.channels[ from ];
+
+// } );
 
 //Functions
 var random = function( min, max ) {
@@ -111,10 +113,10 @@ var loadCommands = function( channel ) {
     var query = null;
     console.log( channel );
     if( channel ) {
-        query = "SELECT name as `channel`, `trigger`, `content`, `access`, `type` FROM channel_commands cm INNER JOIN channels c ON cm.channel = c.id WHERE c.name = '" + channel + "' ORDER BY c.name";
+        query = "SELECT name as `channel`, `trigger`, `content`, `access`, `type` FROM channel_commands cm INNER JOIN channels c ON cm.channel = c.id WHERE c.name = '" + channel + "' AND enabled = 1 ORDER BY c.name";
     }
     else {
-        query = "SELECT name as `channel`, `trigger`, `content`, `access`, `type` FROM channel_commands cm INNER JOIN channels c ON cm.channel = c.id ORDER BY c.name";
+        query = "SELECT name as `channel`, `trigger`, `content`, `access`, `type` FROM channel_commands cm INNER JOIN channels c ON cm.channel = c.id WHERE enabled = 1 ORDER BY c.name";
     }
     console.log( "Loading commands..." );
     //Load all the commands
@@ -134,7 +136,7 @@ var executeCommand = function( command, channel, nickname, message ) {
     console.log( command );
     switch( command.type ) {
         case "text":
-            bot.message( channel, command.content, 'groupchat' );
+            bot.message( channel, command.content );
             break;
         case "command":
             var context = {
@@ -148,7 +150,7 @@ var executeCommand = function( command, channel, nickname, message ) {
                 //vm.runInNewContext( command.content, context );
                 var script = vm.createScript( command.content );
                 script.runInNewContext( context );
-                bot.message( channel, context.result, 'groupchat' );
+                bot.message( channel, context.result );
             }
             catch( e ) {
                 console.log( e );
