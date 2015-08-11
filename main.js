@@ -68,9 +68,10 @@ bot.on( 'msg', function( nickname, channel, message, stanza ) {
 bot.on( 'command#!debug', function( from, text, stanza ) {
     var channel = bot.channels [ from ];
     console.log( channel );
-    bot.message( from, "Total Users: " + ( channel.users.length + channel.mods.length ), stanza.type );
-    bot.message( from, "Users: " + channel.users.length, stanza.type );
-    bot.message( from, "Mods: " + channel.mods.length, stanza.type );
+    var output = 'Total Users: ' + ( channel.users.length + channel.mods.length ) + '\n';
+    output += 'Users: ' + channel.users.length + '\n';
+    output += 'Mods: ' + channel.mods.length;
+    bot.message( from, output, stanza.type );
 } );
 
 bot.on( 'command#!help', function( from, text, stanza ) {
@@ -78,9 +79,9 @@ bot.on( 'command#!help', function( from, text, stanza ) {
     for( var trigger in channels[from].commands ) {
         string.push( trigger );
     }
-    bot.message( from, "LCTV Bot Commands:", stanza.type );
-    bot.message( from, "Global Commands: !help, !info", stanza.type );
-    bot.message( from, "Channel commands: " + string.join( ',' ), stanza.type );
+    var output = "LCTV Bot Commands:\nGlobal Commands: !help, !info\n";
+    output += 'Channel Commands: ' + string.join( ',' );
+    bot.message( from, output, stanza.type );
 } );
 
 bot.on( 'command#!info', function( from, text, stanza ) {
@@ -92,10 +93,14 @@ bot.on( 'command#!info', function( from, text, stanza ) {
 } );
 
 bot.on( 'command#!reload' , function( from, text, stanza ) {
-    bot.message( from, 'Reloading chat commands...', stanza.type );
+    bot.message( from, '/codeReloading chat commands...', stanza.type );
     loadCommands( from );
 } );
 
+bot.on( 'command#!setup', function( from, text, stanza ) {
+    var channel = bot.channels[ from ];
+    console.log( { from: from, text: text } );
+} );
 
 //Functions
 var random = function( min, max ) {
