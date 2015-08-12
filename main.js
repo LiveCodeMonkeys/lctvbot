@@ -4,6 +4,8 @@ var config = require( './config.json' );
 
 var lctvbot = require( "lctvbot" );
 var mysql = require( 'mysql' );
+var sf = require( 'sf' );
+
 var bot = new lctvbot( config );
 var vm = require( 'vm' );
 var util = require( 'util' );
@@ -86,11 +88,9 @@ bot.on( 'command#!help', function( from, text, nickname, stanza ) {
 
 bot.on( 'command#!info', function( from, text, nickname, stanza ) {
     var onlineTimer = unixTimestamp() - online;
-    console.log( { channelCount: channelCount, onlineTimer: onlineTimer } );
-    var output = "LCTV Bot Info:\nChannels: " + channelCount + "\nOnline: " + onlineTimer + "s";
-    // bot.message( from, "LCTV Bot Info:" );
-    // bot.message( from, "Channels: " + channelCount, stanza.type );
-    // bot.message( from, "Online: " + onlineTimer + "s", );
+    //console.log( { channelCount: channelCount, onlineTimer: onlineTimer } );
+    var output = "LCTV Bot Info:\nChannels: " + channelCount + "\nOnline: " + sf( "{0:h'h 'm'm 's's '}", new sf.TimeSpan( onlineTimer * 1000 ) );
+    //console.log( { onlineTimer: onlineTimer, formatedTimer: sf( "{0:h'h, 'm'm, 's's'}", new sf.TimeSpan( onlineTimer * 1000 )) } );
     bot.message( from, output );
 } );
 
